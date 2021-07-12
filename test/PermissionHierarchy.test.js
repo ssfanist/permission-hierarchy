@@ -11,14 +11,14 @@ contract(PermissionHierarchy, ([deployer, treasury, user1, user2, user3]) => {
   describe('constructor', async () => {
     it('when treasury is zero address', async () => {
       await expectRevert(
-        PermissionHierarchy.new(ZERO_ADDRESS, 2),
+        PermissionHierarchy.new(ZERO_ADDRESS, 1, 2),
         'Treasury cannot be zero address',
       );
     });
 
     it('when maxCount is below 2', async () => {
       await expectRevert(
-        PermissionHierarchy.new(treasury, 1),
+        PermissionHierarchy.new(treasury, 1, 1),
         'Max account number must be bigger than 1',
       );
     });
@@ -26,7 +26,7 @@ contract(PermissionHierarchy, ([deployer, treasury, user1, user2, user3]) => {
 
   describe('add account', async () => {
     beforeEach(async () => {
-      this.hierarchy = await PermissionHierarchy.new(treasury, 2);
+      this.hierarchy = await PermissionHierarchy.new(treasury, 1, 2);
     });
 
     it('when adding zero', async () => {
@@ -108,7 +108,7 @@ contract(PermissionHierarchy, ([deployer, treasury, user1, user2, user3]) => {
 
   describe('remove account', async () => {
     beforeEach(async () => {
-      this.hierarchy = await PermissionHierarchy.new(treasury, 2);
+      this.hierarchy = await PermissionHierarchy.new(treasury, 1, 2);
     });
 
     it('when removing zero', async () => {
@@ -128,7 +128,7 @@ contract(PermissionHierarchy, ([deployer, treasury, user1, user2, user3]) => {
 
   describe('structure', async () => {
     beforeEach(async () => {
-      this.hierarchy = await PermissionHierarchy.new(treasury, 2);
+      this.hierarchy = await PermissionHierarchy.new(treasury, 1, 2);
     });
 
     it("creator's parent", async () => {

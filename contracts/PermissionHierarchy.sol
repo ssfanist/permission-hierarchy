@@ -21,8 +21,10 @@ contract PermissionHierarchy is Ownable {
 
     // =================== State Variables ===================
     uint256 constant PRICE_PER_ACCOUNT = 1e16; // 0.001 ETH
+    uint256 constant FEE_DENOMINATOR = 100;
     uint256 public immutable maxCount;
     address public treasury;
+    uint256 public fee;
 
     mapping(address => Account) public accounts;
 
@@ -45,11 +47,16 @@ contract PermissionHierarchy is Ownable {
     }
 
     // =================== Constructor ===================
-    constructor(address _treasury, uint256 _maxCount) {
+    constructor(
+        address _treasury,
+        uint256 _fee,
+        uint256 _maxCount
+    ) {
         require(_treasury != address(0), "Treasury cannot be zero address");
         require(_maxCount > 1, "Max account number must be bigger than 1");
 
         treasury = _treasury;
+        fee = _fee;
         maxCount = _maxCount;
         address[] memory children;
         accounts[msg.sender] = Account({
@@ -93,6 +100,10 @@ contract PermissionHierarchy is Ownable {
             isRemoved: false
         });
         emit AccountAdded(account);
+
+        uint256 _fee = (msg.value * fee) / FEE_DENOMINATOR;
+        accounts[msg.sender].parent.call{value: _fee}("");
+        treasury.call{value: msg.value - _fee}("");
     }
 
     function addAccount(address account) public payable hasAddPermission() {
@@ -121,6 +132,10 @@ contract PermissionHierarchy is Ownable {
             isRemoved: false
         });
         emit AccountAdded(account);
+
+        uint256 _fee = (msg.value * fee) / FEE_DENOMINATOR;
+        accounts[msg.sender].parent.call{value: _fee}("");
+        treasury.call{value: msg.value - _fee}("");
     }
 
     function removeAccount(address account) public hasRemovePermission() {
