@@ -16,6 +16,7 @@ contract PermissionHierarchy is Ownable {
             3(0x11): can add or remove
         */
         uint8 role;
+        bool isRemoved;
     }
 
     // =================== State Variables ===================
@@ -28,7 +29,8 @@ contract PermissionHierarchy is Ownable {
     // =================== Modifier ===================
     modifier hasAddPermission() {
         require(
-            accounts[msg.sender].role % 2 == 1,
+            !accounts[msg.sender].isRemoved &&
+                accounts[msg.sender].role % 2 == 1,
             "Sender has no permission to add"
         );
         _;
@@ -36,7 +38,7 @@ contract PermissionHierarchy is Ownable {
 
     modifier hasRemovePermission() {
         require(
-            accounts[msg.sender].role > 2,
+            !accounts[msg.sender].isRemoved && accounts[msg.sender].role > 2,
             "Sender has no permission to remove"
         );
         _;
@@ -53,7 +55,8 @@ contract PermissionHierarchy is Ownable {
         accounts[msg.sender] = Account({
             parent: address(0),
             children: children,
-            role: 3
+            role: 3,
+            isRemoved: false
         });
         emit AccountAdded(msg.sender);
     }
@@ -86,7 +89,8 @@ contract PermissionHierarchy is Ownable {
         accounts[account] = Account({
             parent: msg.sender,
             children: children,
-            role: newRole
+            role: newRole,
+            isRemoved: false
         });
         emit AccountAdded(account);
     }
@@ -113,36 +117,20 @@ contract PermissionHierarchy is Ownable {
         accounts[account] = Account({
             parent: msg.sender,
             children: children,
-            role: accounts[msg.sender].role
+            role: accounts[msg.sender].role,
+            isRemoved: false
         });
         emit AccountAdded(account);
     }
 
-    function removeAccount(address account)
-        public
-        hasRemovePermission()
-        returns (bool)
-    {
+    function removeAccount(address account) public hasRemovePermission() {
         require(account != address(0), "Cannot remove zero-address account");
-
-        address[] storage children = accounts[msg.sender].children;
-        for (uint256 i = 0; i < children.length; i++) {
-            if (children[i] == account) {
-                children[i] = children[children.length - 1];
-                children.pop();
-                emit AccountRemoved(account);
-
-                for (
-                    uint256 j = 0;
-                    j < accounts[account].children.length;
-                    j++
-                ) {
-                    children.push(accounts[account].children[j]);
-                }
-                return true;
-            }
-        }
-        return false;
+        require(
+            account != msg.sender && accounts[account].parent != address(0),
+            "Account not exists"
+        );
+        accounts[account].isRemoved = true;
+        emit AccountRemoved(account);
     }
 
     // =================== View Functions ===================
@@ -156,6 +144,10 @@ contract PermissionHierarchy is Ownable {
 
     function role(address account) public view returns (uint8) {
         return accounts[account].role;
+    }
+
+    function isAlive(address account) public view returns (bool) {
+        return !accounts[account].isRemoved;
     }
 
     // =================== Events ===================
