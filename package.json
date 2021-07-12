@@ -1,0 +1,25 @@
+{
+  "name": "permission-hierarchy",
+  "version": "1.0.0",
+  "private": true,
+  "license": "MIT",
+  "author": "Peter",
+  "scripts": {
+    "test": "truffle test",
+    "compile": "truffle compile",
+    "prettier-sol": "prettier --write 'contracts/**/*.sol'",
+    "prettier-js": "prettier --write 'test/*.js'"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.2.0"
+  },
+  "devDependencies": {
+    "@openzeppelin/test-helpers": "^0.5.12",
+    "@truffle/hdwallet-provider": "^1.4.1",
+    "chai": "^4.3.4",
+    "prettier": "^2.3.2",
+    "prettier-plugin-solidity": "^1.0.0-beta.15",
+    "solhint": "^3.3.6",
+    "truffle-plugin-verify": "^0.5.11"
+  }
+}
