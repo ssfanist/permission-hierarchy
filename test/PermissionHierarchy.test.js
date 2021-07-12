@@ -1,10 +1,9 @@
 const { expect } = require('chai');
-const { BN, expectRevert } = require('@openzeppelin/test-helpers');
+const { BN, expectRevert, expectEvent } = require('@openzeppelin/test-helpers');
 const { ZERO_ADDRESS } = require('@openzeppelin/test-helpers/src/constants');
-const expectEvent = require('@openzeppelin/test-helpers/src/expectEvent');
 const PermissionHierarchy = artifacts.require('PermissionHierarchy');
 
-contract(PermissionHierarchy, ([_, treasury, user1, user2, user3]) => {
+contract(PermissionHierarchy, ([deployer, treasury, user1, user2, user3]) => {
   describe('constructor', async () => {
     it('when treasury is zero address', async () => {
       await expectRevert(
@@ -24,7 +23,7 @@ contract(PermissionHierarchy, ([_, treasury, user1, user2, user3]) => {
   describe('add account', async () => {
     beforeEach(async () => {
       this.hierarchy = await PermissionHierarchy.new(treasury, 2);
-      this.PRICE = '1000000000000000000';
+      this.PRICE = new BN('10000000000000000');
     });
 
     it('when adding zero', async () => {
@@ -39,46 +38,51 @@ contract(PermissionHierarchy, ([_, treasury, user1, user2, user3]) => {
     });
 
     it('when adding same account', async () => {
-      await this.hierarchy.addAccount(user1, {
+      await this.hierarchy.methods['addAccount(address)'](user1, {
+        from: deployer,
         value: this.PRICE,
       });
       await expectRevert(
-        this.hierarchy.addAccount(user1, { value: this.PRICE }),
+        this.hierarchy.methods['addAccount(address)'](user1, {
+          from: deployer,
+          value: this.PRICE,
+        }),
         'Account already exists',
       );
     });
 
     it('when adding with unidentified role', async () => {
       await expectRevert(
-        this.hierarchy.addAccount(user1, 4),
+        this.hierarchy.methods['addAccount(address,uint8)'](user1, 4),
         'Unidentified role value',
       );
     });
 
     it('when adding over max count', async () => {
-      await this.hierarchy.addAccount(user1, {
+      await this.hierarchy.methods['addAccount(address)'](user1, {
         value: this.PRICE,
       });
-      let receipt = await this.hierarchy.addAccount(user2, {
-        value: this.PRICE.mul(2),
-      });
-      await expectEvent.inTransaction(
-        receipt.hash,
-        this.hierarchy,
-        'MaxCountReached',
+      const receipt = await this.hierarchy.methods['addAccount(address)'](
+        user2,
+        {
+          value: this.PRICE.mul(new BN(2)),
+        },
       );
+      expectEvent(receipt, 'MaxCountReached', { account: deployer });
       await expectRevert(
-        this.hierarchy.addAccount(user3, { value: this.PRICE }),
+        this.hierarchy.methods['addAccount(address)'](user3, {
+          value: this.PRICE,
+        }),
         'Maximum count reached',
       );
     });
 
     it('when no add permission', async () => {
-      await this.hierarchy.addAccount(user1, 0, {
+      await this.hierarchy.methods['addAccount(address,uint8)'](user1, 0, {
         value: this.PRICE,
       });
       await expectRevert(
-        this.hierarchy.addAccount(user2, {
+        this.hierarchy.methods['addAccount(address)'](user2, {
           from: user1,
           value: this.PRICE,
         }),
@@ -87,11 +91,11 @@ contract(PermissionHierarchy, ([_, treasury, user1, user2, user3]) => {
     });
 
     it('when not enough pay amount', async () => {
-      await this.hierarchy.addAccount(user1, 3, {
+      await this.hierarchy.methods['addAccount(address,uint8)'](user1, 3, {
         value: this.PRICE,
       });
       await expectRevert(
-        this.hierarchy.addAccount(user2, 3, {
+        this.hierarchy.methods['addAccount(address,uint8)'](user2, 3, {
           value: this.PRICE,
         }),
         'Pay amount is not enough to add',

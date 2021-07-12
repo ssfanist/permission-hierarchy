@@ -19,7 +19,7 @@ contract PermissionHierarchy is Ownable {
     }
 
     // =================== State Variables ===================
-    uint256 constant PRICE_PER_ACCOUNT = 1e18; // 0.001 ETH
+    uint256 constant PRICE_PER_ACCOUNT = 1e16; // 0.001 ETH
     uint256 public immutable maxCount;
     address public treasury;
 
@@ -29,7 +29,7 @@ contract PermissionHierarchy is Ownable {
     modifier hasAddPermission() {
         require(
             accounts[msg.sender].role % 2 == 1,
-            "Sender has no permission to do add"
+            "Sender has no permission to add"
         );
         _;
     }
@@ -37,7 +37,7 @@ contract PermissionHierarchy is Ownable {
     modifier hasRemovePermission() {
         require(
             accounts[msg.sender].role > 2,
-            "Sender has no permission to do remove"
+            "Sender has no permission to remove"
         );
         _;
     }
