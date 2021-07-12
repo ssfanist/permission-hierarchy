@@ -1,5 +1,6 @@
-const PermissionHierarchy = artifacts.require("PermissionHierarchy");
+const PermissionHierarchy = artifacts.require('PermissionHierarchy');
 
-module.exports = function (deployer) {
-  deployer.deploy(PermissionHierarchy, 10);
+module.exports = async (deployer) => {
+  // const treasury = '';
+  // await deployer.deploy(PermissionHierarchy, treasury, 10);
 };

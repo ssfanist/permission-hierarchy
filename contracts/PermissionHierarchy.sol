@@ -19,7 +19,7 @@ contract PermissionHierarchy is Ownable {
     }
 
     // =================== State Variables ===================
-    uint256 constant PRICE_PER_ACCOUNT = 1000000000000000; // 0.001 ETH
+    uint256 constant PRICE_PER_ACCOUNT = 1e18; // 0.001 ETH
     uint256 public immutable maxCount;
     address public treasury;
 
@@ -28,7 +28,7 @@ contract PermissionHierarchy is Ownable {
     // =================== Modifier ===================
     modifier hasAddPermission() {
         require(
-            accounts[msg.sender].role >> 1 == 1,
+            accounts[msg.sender].role % 2 == 1,
             "Sender has no permission to do add"
         );
         _;
@@ -36,7 +36,7 @@ contract PermissionHierarchy is Ownable {
 
     modifier hasRemovePermission() {
         require(
-            accounts[msg.sender].role << 1 == 1,
+            accounts[msg.sender].role > 2,
             "Sender has no permission to do remove"
         );
         _;
@@ -71,13 +71,18 @@ contract PermissionHierarchy is Ownable {
             account != msg.sender && accounts[account].parent == address(0),
             "Account already exists"
         );
+        require(newRole >= 0 && newRole < 4, "Unidentified role value");
         require(
             msg.value >= count * PRICE_PER_ACCOUNT,
-            "Pay amount is not enough to add this account"
+            "Pay amount is not enough to add"
         );
 
-        address[] memory children;
         accounts[msg.sender].children.push(account);
+        if (accounts[msg.sender].children.length == maxCount) {
+            emit MaxCountReached(msg.sender);
+        }
+
+        address[] memory children;
         accounts[account] = Account({
             parent: msg.sender,
             children: children,
@@ -99,8 +104,12 @@ contract PermissionHierarchy is Ownable {
             "Pay amount is not enough to add this account"
         );
 
-        address[] memory children;
         accounts[msg.sender].children.push(account);
+        if (accounts[msg.sender].children.length == maxCount) {
+            emit MaxCountReached(msg.sender);
+        }
+
+        address[] memory children;
         accounts[account] = Account({
             parent: msg.sender,
             children: children,
@@ -152,5 +161,5 @@ contract PermissionHierarchy is Ownable {
     // =================== Events ===================
     event AccountAdded(address indexed account);
     event AccountRemoved(address indexed account);
-    event MaxCountReached();
+    event MaxCountReached(address indexed account);
 }
