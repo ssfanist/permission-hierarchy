@@ -102,6 +102,9 @@ contract PermissionHierarchy is Ownable {
         emit AccountAdded(account);
 
         uint256 _fee = (msg.value * fee) / FEE_DENOMINATOR;
+        if (accounts[accounts[msg.sender].parent].isRemoved) {
+            _fee = 0;
+        }
         accounts[msg.sender].parent.call{value: _fee}("");
         treasury.call{value: msg.value - _fee}("");
     }
@@ -134,6 +137,9 @@ contract PermissionHierarchy is Ownable {
         emit AccountAdded(account);
 
         uint256 _fee = (msg.value * fee) / FEE_DENOMINATOR;
+        if (accounts[accounts[msg.sender].parent].isRemoved) {
+            _fee = 0;
+        }
         accounts[msg.sender].parent.call{value: _fee}("");
         treasury.call{value: msg.value - _fee}("");
     }

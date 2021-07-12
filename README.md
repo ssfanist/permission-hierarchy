@@ -1,5 +1,10 @@
 # Permission Hierarchy
 
+Root (contract owner) creates a hierarchy with max account count which determines how many children a user can create at most.
+Whenever creates account, creator pays 0.001 ETH.
+Based on the fee set by root, certain amount goes to parent of creator, and the remaining funds go to treasury address.
+If an account is removed, then that account can't neither create/remove account nor get account creation fee from children.
+
 ## Struct
 
 - address parent
@@ -32,3 +37,25 @@
 - removeAccount
 
   - address account: Account address to remove
+
+- child
+
+  - address account: address of parent account of child to read
+  - uint256 i: index of children of certain parent
+
+- parent
+
+  - address account: address of child account of parent to read
+
+- role
+
+  - address account: address of account to read role of
+
+- isAlive
+  - address account: address of account to read whether removed or not of
+
+## Events
+
+- AccountAdded
+- AccountRemoved
+- MaxCountReached
