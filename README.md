@@ -20,6 +20,13 @@ If an account is removed, then that account can't neither create/remove account 
 - bool isRemoved
   - account removal status
 
+## Constructor
+
+- address root: root of hierarchy
+- address treasury: treasury to get fee from hierarchy
+- uint256 fee: fee amount to take when adding each account
+- uint256 maxCount: tree hierarchy dimension
+
 ## Functions
 
 - addAccount

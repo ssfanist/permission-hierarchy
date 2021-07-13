@@ -20,7 +20,7 @@ contract PermissionHierarchy is Ownable {
     }
 
     // =================== State Variables ===================
-    // cost to add one account
+    // cost charging per account when adding
     uint256 constant PRICE_PER_ACCOUNT = 1e16; // 0.001 ETH
     // fee calculation denominator
     uint256 constant FEE_DENOMINATOR = 100;
