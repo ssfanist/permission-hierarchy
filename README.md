@@ -17,6 +17,8 @@ If an account is removed, then that account can't neither create/remove account 
     - 1(0x01): can add
     - 2(0x10): can remove
     - 3(0x11): can add or remove
+- bool isRemoved
+  - account removal status
 
 ## Functions
 
@@ -43,16 +45,9 @@ If an account is removed, then that account can't neither create/remove account 
   - address account: address of parent account of child to read
   - uint256 i: index of children of certain parent
 
-- parent
+- childCount
 
-  - address account: address of child account of parent to read
-
-- role
-
-  - address account: address of account to read role of
-
-- isAlive
-  - address account: address of account to read whether removed or not of
+  - address account: address of parent to read children count
 
 ## Events
 

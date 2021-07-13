@@ -91,6 +91,7 @@ contract PermissionHierarchy is Ownable {
     }
 
     // =================== Mutable Functions ===================
+    // add account with newRole permission
     function addAccount(address account, uint8 newRole)
         external
         payable
@@ -100,6 +101,7 @@ contract PermissionHierarchy is Ownable {
         _addAccount(account, newRole);
     }
 
+    // add account with sender's permission
     function addAccount(address account)
         external
         payable
@@ -155,6 +157,7 @@ contract PermissionHierarchy is Ownable {
         require(success, "Treasury payment failed");
     }
 
+    // remove account
     function removeAccount(address account)
         external
         isAlive
